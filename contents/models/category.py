@@ -1,6 +1,6 @@
 from django.db import models
 
-from common.models import BaseModel, UUIDmodel
+from common.models import BaseModel
 
 
 class Category(BaseModel):
