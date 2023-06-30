@@ -3,6 +3,7 @@ Test for job entity.
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from datetime import datetime
 
@@ -24,17 +25,33 @@ class JobTest(TestCase):
         self.location = Location.objects.create(
             address="Khujand Lincoln st. 1",
         )
+        image = SimpleUploadedFile(
+            "test_image.jpg",
+            b"image_content",
+            content_type="image/jpeg"
+        )
         self.company = Company.objects.create(
-            title="Sample company",
+            title="Sample title",
+            description="Sample description",
+            website="https://example.com",
+            logo=image,
+            location=self.location,
         )
 
     def test_job_create(self):
         job = Job.objects.create(
-            owner=self.user,
+            user=self.user,
             title='Sample title',
             description='Sample description',
             location=self.location,
             company=self.company,
             created_at=datetime.now(),
-            salary=Decimal(5000.00),
+            salary=Decimal(50.00),
         )
+
+        self.assertEqual(job.user, self.user)
+        self.assertEqual(job.title, 'Sample title')
+        self.assertEqual(job.description, 'Sample description')
+        self.assertEqual(job.location, self.location)
+        self.assertEqual(job.company, self.company)
+        self.assertEqual(job.salary, Decimal('50.00'))

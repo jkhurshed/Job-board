@@ -1,7 +1,9 @@
 from django.db import models
 
+from common.models import UUIDmodel
 
-class Location(models.Model):
+
+class Location(UUIDmodel, models.Model):
 
     country = models.CharField("Country", max_length=100)
     state = models.CharField("State or region", max_length=100)
