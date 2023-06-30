@@ -3,16 +3,22 @@ Testing test entity
 """
 from django.test import TestCase
 
+from users_app.models import User
+
 from ..models import Skill
 
 
 class SkillTest(TestCase):
     """Test model"""
 
+    def setUp(self):
+        self.user = User.objects.create_user(email='user@example.com', password='testpassword')
+
     # name, description, proficiency level,
     def test_create_skill(self):
         """Creating a category successful"""
         skill = Skill.objects.create(
+            user=self.user,
             title="Sample category title",
             description="Sample description",
         )

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth import settings
 
 from common.models import BaseModel
 
@@ -18,6 +19,7 @@ class Skill(BaseModel, models.Model):
         choices=PROFICIENCY_LEVEL_CHOICES,
         default='junior'
     )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True)
 
     class Meta:
         ordering = ["proficiency_level"]

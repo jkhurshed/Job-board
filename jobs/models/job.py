@@ -14,7 +14,7 @@ class Job(BaseModel, models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, default=uuid4)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     # company_id = models.UUIDField(default=uuid4)
     salary = models.DecimalField("Salary", max_digits=5, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
