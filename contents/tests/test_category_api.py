@@ -7,9 +7,14 @@ from rest_framework.test import APIClient
 
 from contents.models import Category
 
-from ..serializers import CategorySerializer
+from ..serializers import CategorySerializer, CategoryDetailSerializer
 
 CATEGORY_URL = reverse("contents:category-list")
+
+
+def detail_url(category_id):
+    """Create and return a recipe detail URL."""
+    return reverse('contents:category-detail', args=[category_id])
 
 
 def create_category(**params):
@@ -54,3 +59,25 @@ class PrivateCategoryAPITests(TestCase):
         serializer = CategorySerializer(category, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_get_category_detail(self):
+        category = create_category()
+
+        url = detail_url(category.id)
+        res = self.client.get(url)
+
+        serializer = CategoryDetailSerializer(category)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_category(self):
+        """Test creating a recipe."""
+        payload = {
+            "title": "Sample category",
+            "description": "Sample description",
+        }
+        res = self.client.post(CATEGORY_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        category = Category.objects.get(id=res.data['id'])
+        for k, v in payload.items():
+            self.assertEqual(getattr(category, k), v)
