@@ -11,3 +11,9 @@ class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

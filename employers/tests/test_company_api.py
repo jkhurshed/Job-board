@@ -59,12 +59,6 @@ class PrivateCompanyApiTest(TestCase):
         self.client = APIClient()
         self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
-        self.image = SimpleUploadedFile(
-            "test_image.jpg",
-            b"image_content",
-            content_type="image/jpeg"
-        )
-        self.location = Location.objects.create(address="Test Address")
 
     def test_retrieve_company(self):
         create_company()
@@ -93,18 +87,37 @@ class PrivateCompanyApiTest(TestCase):
 
         self.assertEqual(res.data, expected_data)
 
-    # def _create_company(self):
-    #     """Test creating a company."""
-    #     payload = {
-    #         "title": "Sample Company",
-    #         "description": "Sample description",
-    #         "website": "http://example.com",
-    #         "logo": self.image,
-    #         "location": self.location.id,
-    #     }
-    #     res = self.client.post(COMPANY_URL, payload)
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-    #     company = Company.objects.get(id=res.data['id'])
-    #     for k, v in payload.items():
-    #         self.assertEqual(getattr(company, k), v)
+    def _create_company(self):
+        """Test creating a company."""
+        self.location = Location.objects.create(address="Test Address")
+        location_uuid = str(self.location.id)
+        self.image = SimpleUploadedFile(
+            "test_image.jpg",
+            b"image_content",
+            content_type="image/jpeg"
+        )
+        payload = {
+            "title": "Sample Company",
+            "description": "Sample description",
+            "website": "http://example.com",
+            "logo": self.image,
+            "location": location_uuid,
+        }
+        res = self.client.post(COMPANY_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        company = Company.objects.get(id=res.data['id'])
+        for k, v in payload.items():
+            if payload['location']:
+                self.assertEqual(location_uuid, payload['location'])
+            self.assertEqual(getattr(company, k), v)
+
+    def test_delete_company(self):
+        """Test deleting a skill successful"""
+        company = create_company()
+
+        url = detail_url(company.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Company.objects.filter(id=company.id).exists())

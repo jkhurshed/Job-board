@@ -24,6 +24,8 @@ def detail_url(job_id):
 def create_job(user, **params):
     location = Location.objects.create(address="Test Address")
     company = Company.objects.create(title="Sample company", location=location)
+    # location_uuid = str(location.id)
+    # company_uuid = str(company.id)
     defaults = {
         "title": 'Sample title',
         "description": 'Sample description',
@@ -59,7 +61,7 @@ class PrivateJobApiTest(TestCase):
         self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
 
-    def test_retrieve_company(self):
+    def test_retrieve_job(self):
         create_job(user=self.user)
 
         res = self.client.get(JOB_URL)
@@ -84,11 +86,16 @@ class PrivateJobApiTest(TestCase):
         """Test creating a company."""
         self.location = Location.objects.create(address="Test Address")
         self.company = Company.objects.create(title="Sample company", location=self.location)
+
+        location_uuid = str(self.location.id)
+        company_uuid = str(self.company.id)
+
         payload = {
+            "user": self.user,
             "title": 'Sample title',
             "description": 'Sample description',
-            "location": self.location,
-            "company": self.company,
+            "location": location_uuid,
+            "company": company_uuid,
             "created_at": datetime.now(),
             "salary": Decimal(50.00),
         }
@@ -97,4 +104,60 @@ class PrivateJobApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         job = Job.objects.get(id=res.data['id'])
         for k, v in payload.items():
-            self.assertEqual(getattr(job, k), v)
+            if payload['location']:
+                self.assertEqual(location_uuid, payload['location'])
+            if payload['company']:
+                self.assertEqual(company_uuid, payload['company'])
+            else:
+                self.assertEqual(getattr(job, k), v)
+
+    def test_partial_update(self):
+        self.location = Location.objects.create(address="Test Address")
+        self.company = Company.objects.create(title="Sample company", location=self.location)
+
+        location_uuid = str(self.location.id)
+        company_uuid = str(self.company.id)
+
+        job = create_job(user=self.user)
+
+        payload = {
+            "title": 'Sample title',
+            "description": 'Sample description',
+            "location": location_uuid,
+            "company": company_uuid,
+            "created_at": datetime.now(),
+            "salary": Decimal(50.00),
+        }
+        url = detail_url(job.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        job.refresh_from_db()
+        for k, v in payload.items():
+            if payload['location']:
+                self.assertEqual(location_uuid, payload['location'])
+            if payload['company']:
+                self.assertEqual(company_uuid, payload['company'])
+            else:
+                self.assertEqual(getattr(job, k), v)
+
+    def test_update_user_returns_error(self):
+        new_user = create_user(email="user2@example.com", password='test123')
+        job = create_job(user=self.user)
+
+        payload = {'user': new_user.id}
+        url = detail_url(job.id)
+        self.client.put(url, payload)
+
+        job.refresh_from_db()
+        self.assertEqual(job.user, self.user)
+
+    def test_delete_skill(self):
+        """Test deleting a skill successful"""
+        job = create_job(user=self.user)
+
+        url = detail_url(job.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Job.objects.filter(id=job.id).exists())

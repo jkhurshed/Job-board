@@ -24,7 +24,7 @@ class CompanyTest(TestCase):
             if objects.logo:
                 path = os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
-                    '../../images',
+                    '../../static/images',
                     os.path.basename(objects.logo.path)
                 )
                 os.remove(path)
