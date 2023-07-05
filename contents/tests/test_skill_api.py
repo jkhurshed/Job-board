@@ -11,6 +11,11 @@ from ..serializers import SkillSerializer
 SKILL_URL = reverse("contents:skill-list")
 
 
+def detail_url(skill_id):
+    """Create and return a recipe detail URL."""
+    return reverse('contents:skill-detail', args=[skill_id])
+
+
 def create_skill(user, **params):
     defaults = {
         "title": "Sample title",
@@ -21,6 +26,11 @@ def create_skill(user, **params):
 
     skill = Skill.objects.create(user=user, **defaults)
     return skill
+
+
+def create_user(**params):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(**params)
 
 
 class PublicSkillAPITests(TestCase):
@@ -35,10 +45,7 @@ class PublicSkillAPITests(TestCase):
 class PrivateSkillAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(
-            email='test@example.com',
-            password='testpassword',
-        )
+        self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_skills(self):
@@ -50,3 +57,70 @@ class PrivateSkillAPITests(TestCase):
         serializer = SkillSerializer(skills, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_get_skill_detail(self):
+        skill = create_skill(user=self.user)
+
+        url = detail_url(skill.id)
+        res = self.client.get(url)
+
+        serializer = SkillSerializer(skill)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_skill(self):
+        """Test creating a skill."""
+        payload = {
+            "title": "Sample title",
+            "description": "Sample description",
+            "proficiency_level": "junior",
+        }
+        res = self.client.post(SKILL_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        skill = Skill.objects.get(id=res.data['id'])
+        for k, v in payload.items():
+            self.assertEqual(getattr(skill, k), v)
+        self.assertEqual(skill.user, self.user)
+
+    def test_partial_update(self):
+        skill = create_skill(
+            user=self.user,
+            title="Sample title",
+            description="Sample description",
+            proficiency_level="junior",
+        )
+
+        payload = {
+            "title": "Sample title",
+            "description": "Sample description",
+            "proficiency_level": "junior",
+        }
+        url = detail_url(skill.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        skill.refresh_from_db()
+        for k, v in payload.items():
+            self.assertEqual(getattr(skill, k), v)
+        self.assertEqual(skill.user, self.user)
+
+    def test_update_user_returns_error(self):
+        new_user = create_user(email="user2@example.com", password='test123')
+        skill = create_skill(user=self.user)
+
+        payload = {'user': new_user.id}
+        url = detail_url(skill.id)
+        self.client.put(url, payload)
+
+        skill.refresh_from_db()
+        self.assertEqual(skill.user, self.user)
+
+    def test_delete_skill(self):
+        """Test deleting a skill successful"""
+        skill = create_skill(user=self.user)
+
+        url = detail_url(skill.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Skill.objects.filter(id=skill.id).exists())

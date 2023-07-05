@@ -13,6 +13,11 @@ from ..serializers import CompanySerializer
 COMPANY_URL = reverse("employers:company-list")
 
 
+def detail_url(company_id):
+    """Create and return a recipe detail URL."""
+    return reverse('employers:company-detail', args=[company_id])
+
+
 def create_company(**params):
     location = Location.objects.create(address="Test Address")
     image = SimpleUploadedFile(
@@ -20,17 +25,24 @@ def create_company(**params):
         b"image_content",
         content_type="image/jpeg"
     )
+
     defaults = {
         "title": "Sample Company",
         "description": "Sample description",
         "website": "http://example.com",
-        # "logo": image,
+        "logo": image,
         "location": location,
     }
     defaults.update(params)
 
     company = Company.objects.create(**defaults)
+
     return company
+
+
+def create_user(**params):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(**params)
 
 
 class PublicCompanyAPITests(TestCase):
@@ -45,18 +57,54 @@ class PublicCompanyAPITests(TestCase):
 class PrivateCompanyApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(
-            email='test@example.com',
-            password='testpassword',
-        )
+        self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
+        self.image = SimpleUploadedFile(
+            "test_image.jpg",
+            b"image_content",
+            content_type="image/jpeg"
+        )
+        self.location = Location.objects.create(address="Test Address")
 
     def test_retrieve_company(self):
         create_company()
 
         res = self.client.get(COMPANY_URL)
 
-        skills = Company.objects.all().order_by('id')
-        serializer = CompanySerializer(skills, many=True)
+        company = Company.objects.all().order_by('id')
+        serializer = CompanySerializer(company, many=True)
+
+        expected_data = serializer.data
+        for item in expected_data:
+            item['logo'] = f"http://testserver{item['logo']}"
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(res.data, expected_data)
+
+    def test_get_company_detail(self):
+        company = create_company()
+
+        url = detail_url(company.id)
+        res = self.client.get(url)
+
+        serializer = CompanySerializer(company)
+
+        expected_data = serializer.data
+        expected_data['logo'] = f"http://testserver{expected_data['logo']}"
+
+        self.assertEqual(res.data, expected_data)
+
+    # def _create_company(self):
+    #     """Test creating a company."""
+    #     payload = {
+    #         "title": "Sample Company",
+    #         "description": "Sample description",
+    #         "website": "http://example.com",
+    #         "logo": self.image,
+    #         "location": self.location.id,
+    #     }
+    #     res = self.client.post(COMPANY_URL, payload)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     company = Company.objects.get(id=res.data['id'])
+    #     for k, v in payload.items():
+    #         self.assertEqual(getattr(company, k), v)
