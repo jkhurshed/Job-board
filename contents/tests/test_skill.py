@@ -18,12 +18,11 @@ class SkillTest(TestCase):
     def test_create_skill(self):
         """Creating a category successful"""
         skill = Skill.objects.create(
-            user=self.user,
             title="Sample category title",
             description="Sample description",
         )
 
-        self.assertEqual(str(skill), skill.title)
+        self.assertEqual(str(skill), skill.proficiency_level)
 
     def test_proficiency_level_choices(self):
         # Retrieve the choices from the model field

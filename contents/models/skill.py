@@ -19,7 +19,9 @@ class Skill(BaseModel, models.Model):
         choices=PROFICIENCY_LEVEL_CHOICES,
         default='junior'
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True)
+
+    def __str__(self):
+        return self.proficiency_level
 
     class Meta:
         ordering = ["proficiency_level"]

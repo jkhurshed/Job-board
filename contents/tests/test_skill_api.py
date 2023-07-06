@@ -16,7 +16,7 @@ def detail_url(skill_id):
     return reverse('contents:skill-detail', args=[skill_id])
 
 
-def create_skill(user, **params):
+def create_skill(**params):
     defaults = {
         "title": "Sample title",
         "description": "Sample description",
@@ -24,7 +24,7 @@ def create_skill(user, **params):
     }
     defaults.update(params)
 
-    skill = Skill.objects.create(user=user, **defaults)
+    skill = Skill.objects.create(**defaults)
     return skill
 
 
@@ -49,7 +49,7 @@ class PrivateSkillAPITests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_skills(self):
-        create_skill(user=self.user)
+        create_skill()
 
         res = self.client.get(SKILL_URL)
 
@@ -59,7 +59,7 @@ class PrivateSkillAPITests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_get_skill_detail(self):
-        skill = create_skill(user=self.user)
+        skill = create_skill()
 
         url = detail_url(skill.id)
         res = self.client.get(url)
@@ -80,11 +80,9 @@ class PrivateSkillAPITests(TestCase):
         skill = Skill.objects.get(id=res.data['id'])
         for k, v in payload.items():
             self.assertEqual(getattr(skill, k), v)
-        self.assertEqual(skill.user, self.user)
 
     def test_partial_update(self):
         skill = create_skill(
-            user=self.user,
             title="Sample title",
             description="Sample description",
             proficiency_level="junior",
@@ -102,22 +100,10 @@ class PrivateSkillAPITests(TestCase):
         skill.refresh_from_db()
         for k, v in payload.items():
             self.assertEqual(getattr(skill, k), v)
-        self.assertEqual(skill.user, self.user)
-
-    def test_update_user_returns_error(self):
-        new_user = create_user(email="user2@example.com", password='test123')
-        skill = create_skill(user=self.user)
-
-        payload = {'user': new_user.id}
-        url = detail_url(skill.id)
-        self.client.put(url, payload)
-
-        skill.refresh_from_db()
-        self.assertEqual(skill.user, self.user)
 
     def test_delete_skill(self):
         """Test deleting a skill successful"""
-        skill = create_skill(user=self.user)
+        skill = create_skill()
 
         url = detail_url(skill.id)
         res = self.client.delete(url)

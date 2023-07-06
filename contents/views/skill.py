@@ -12,6 +12,6 @@ class SKillViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        """Create a new recipe."""
-        serializer.save(user=self.request.user)
+    # def perform_create(self, serializer):
+    #     """Create a new recipe."""
+    #     serializer.save(user=self.request.user)

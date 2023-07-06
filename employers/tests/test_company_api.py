@@ -10,6 +10,8 @@ from ..models import Company
 from contents.models import Location
 from ..serializers import CompanySerializer
 
+import os
+
 COMPANY_URL = reverse("employers:company-list")
 
 
@@ -105,11 +107,20 @@ class PrivateCompanyApiTest(TestCase):
         }
         res = self.client.post(COMPANY_URL, payload)
 
+        # file_path = "../../static/images/test_image.jpg"
+        # if os.path.exists(file_path):
+        #     # The file path exists
+        #     print(f"File path '{file_path}' exists.")
+        # else:
+        #     # The file path does not exist
+        #     print(f"File path '{file_path}' does not exist.")
+        # print(res.data)
+
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         company = Company.objects.get(id=res.data['id'])
         for k, v in payload.items():
-            if payload['location']:
-                self.assertEqual(location_uuid, payload['location'])
+            if k == 'location':
+                self.assertEqual(location_uuid, v)
             self.assertEqual(getattr(company, k), v)
 
     def test_delete_company(self):
