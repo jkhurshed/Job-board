@@ -24,8 +24,6 @@ def detail_url(job_id):
 def create_job(user, **params):
     location = Location.objects.create(address="Test Address")
     company = Company.objects.create(title="Sample company", location=location)
-    # location_uuid = str(location.id)
-    # company_uuid = str(company.id)
     defaults = {
         "title": 'Sample title',
         "description": 'Sample description',
@@ -161,3 +159,38 @@ class PrivateJobApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Job.objects.filter(id=job.id).exists())
+
+
+class JobFilterTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = create_user(email='test@example.com', password='pass123')
+        self.client.force_authenticate(user=self.user)
+
+        # self.location1 = Location.objects.create(city='New York')
+        # self.location2 = Location.objects.create(city='San Francisco')
+        # self.location3 = Location.objects.create(city='Seattle')
+
+    def test_job_filtering_by_title(self):
+        create_job(user=self.user)
+        payload = {
+            'title': 'Sample title'
+        }
+        res = self.client.get(JOB_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['title'], 'Sample title')
+
+    def test_job_filtering_by_location(self):
+        location = Location.objects.create(city="San Fransisco")
+        location_id = str(location.id)
+        create_job(user=self.user, location=location)
+        payload = {
+            'location': location_id
+        }
+        res = self.client.get(JOB_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(str(res.data[0]['location']), location_id)

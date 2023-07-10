@@ -1,3 +1,5 @@
+import tempfile
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -11,8 +13,13 @@ from contents.models import Location
 from ..serializers import CompanySerializer
 
 import os
+from PIL import Image
 
 COMPANY_URL = reverse("employers:company-list")
+
+
+def image_upload_url(company_id):
+    return reverse("employers:company-upload-image", args=[company_id])
 
 
 def detail_url(company_id):
@@ -61,6 +68,10 @@ class PrivateCompanyApiTest(TestCase):
         self.client = APIClient()
         self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
+    #     self.company = create_company()
+    #
+    # def tearDown(self):
+    #     self.company.logo.delete()
 
     def test_retrieve_company(self):
         create_company()
@@ -93,28 +104,13 @@ class PrivateCompanyApiTest(TestCase):
         """Test creating a company."""
         self.location = Location.objects.create(address="Test Address")
         location_uuid = str(self.location.id)
-        self.image = SimpleUploadedFile(
-            "test_image.jpg",
-            b"image_content",
-            content_type="image/jpeg"
-        )
         payload = {
             "title": "Sample Company",
             "description": "Sample description",
             "website": "http://example.com",
-            "logo": self.image,
             "location": location_uuid,
         }
         res = self.client.post(COMPANY_URL, payload)
-
-        # file_path = "../../static/images/test_image.jpg"
-        # if os.path.exists(file_path):
-        #     # The file path exists
-        #     print(f"File path '{file_path}' exists.")
-        # else:
-        #     # The file path does not exist
-        #     print(f"File path '{file_path}' does not exist.")
-        # print(res.data)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         company = Company.objects.get(id=res.data['id'])

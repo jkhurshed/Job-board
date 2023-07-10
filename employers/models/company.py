@@ -15,5 +15,5 @@ class Company(BaseModel, models.Model):
 
     class Meta:
         ordering = ['title']
-        verbose_name = ['Company']
-        verbose_name_plural = ['Companies']
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
