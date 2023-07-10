@@ -20,6 +20,7 @@ class CompanyTest(TestCase):
         )
 
     def tearDown(self):
+        """Method for deleting images while testing them"""
         for objects in Company.objects.all():
             if objects.logo:
                 path = os.path.join(
@@ -28,7 +29,6 @@ class CompanyTest(TestCase):
                     os.path.basename(objects.logo.path)
                 )
                 os.remove(path)
-                # print(f"Deleted image: {path}")
 
     def test_create_company(self):
         """Creating a Company successful"""

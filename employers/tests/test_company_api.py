@@ -1,8 +1,6 @@
-import os
-import tempfile
-
-from PIL import Image
-
+"""
+Tests for company api, testing crud operations and others.
+"""
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -71,6 +69,7 @@ class PrivateCompanyApiTest(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_company(self):
+        """Test for retrieving company"""
         create_company()
 
         res = self.client.get(COMPANY_URL)
@@ -85,6 +84,7 @@ class PrivateCompanyApiTest(TestCase):
         self.assertEqual(res.data, expected_data)
 
     def test_get_company_detail(self):
+        """Test get company detail"""
         company = create_company()
 
         url = detail_url(company.id)
@@ -118,7 +118,7 @@ class PrivateCompanyApiTest(TestCase):
                 self.assertEqual(getattr(company, k), v)
 
     def test_delete_company(self):
-        """Test deleting a skill successful"""
+        """Test deleting a company successful"""
         company = create_company()
 
         url = detail_url(company.id)
