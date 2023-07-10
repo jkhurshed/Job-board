@@ -17,8 +17,8 @@ class CompanyViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return self.serializer_class
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)
 
     @action(methods=['POST'], detail=True, url_path="upload-image")
     def upload_image(self, request, pk=None):

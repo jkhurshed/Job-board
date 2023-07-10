@@ -1,4 +1,7 @@
+import os
 import tempfile
+
+from PIL import Image
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -12,8 +15,6 @@ from ..models import Company
 from contents.models import Location
 from ..serializers import CompanySerializer
 
-import os
-from PIL import Image
 
 COMPANY_URL = reverse("employers:company-list")
 
@@ -68,10 +69,6 @@ class PrivateCompanyApiTest(TestCase):
         self.client = APIClient()
         self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
-    #     self.company = create_company()
-    #
-    # def tearDown(self):
-    #     self.company.logo.delete()
 
     def test_retrieve_company(self):
         create_company()
@@ -100,7 +97,7 @@ class PrivateCompanyApiTest(TestCase):
 
         self.assertEqual(res.data, expected_data)
 
-    def _create_company(self):
+    def test_create_company(self):
         """Test creating a company."""
         self.location = Location.objects.create(address="Test Address")
         location_uuid = str(self.location.id)
@@ -117,7 +114,8 @@ class PrivateCompanyApiTest(TestCase):
         for k, v in payload.items():
             if k == 'location':
                 self.assertEqual(location_uuid, v)
-            self.assertEqual(getattr(company, k), v)
+            else:
+                self.assertEqual(getattr(company, k), v)
 
     def test_delete_company(self):
         """Test deleting a skill successful"""
