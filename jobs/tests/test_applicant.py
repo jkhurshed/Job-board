@@ -7,7 +7,7 @@ from contents.models import Skill
 
 
 class ApplicantTest(TestCase):
-    """Test model"""
+    """Test model successfully created"""
 
     def setUp(self):
         self.user = User.objects.create_user(email='user@example.com', password='testpassword')

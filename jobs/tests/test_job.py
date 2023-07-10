@@ -1,5 +1,5 @@
 """
-Test for job entity.
+Tests for job entity.
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -17,6 +17,7 @@ from decimal import Decimal
 
 
 class JobTest(TestCase):
+    """Test for creating job successfully"""
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             'test@example.com',

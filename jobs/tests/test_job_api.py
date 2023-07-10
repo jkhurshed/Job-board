@@ -1,3 +1,6 @@
+"""
+Tests for job api, testing crud operations and others.
+"""
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -54,12 +57,14 @@ class PublicJobAPITests(TestCase):
 
 
 class PrivateJobApiTest(TestCase):
+    """Tests for testing CRUD operations for authenticated users."""
     def setUp(self):
         self.client = APIClient()
         self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_job(self):
+        """Test for retrieving job APIs"""
         create_job(user=self.user)
 
         res = self.client.get(JOB_URL)
@@ -71,6 +76,7 @@ class PrivateJobApiTest(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_get_job_detail(self):
+        """Test for getting jobs detail"""
         job = create_job(user=self.user)
 
         url = detail_url(job.id)
@@ -110,6 +116,7 @@ class PrivateJobApiTest(TestCase):
                 self.assertEqual(getattr(job, k), v)
 
     def test_partial_update(self):
+        """Test for partial jobs updating"""
         self.location = Location.objects.create(address="Test Address")
         self.company = Company.objects.create(title="Sample company", location=self.location)
 
@@ -150,8 +157,8 @@ class PrivateJobApiTest(TestCase):
         job.refresh_from_db()
         self.assertEqual(job.user, self.user)
 
-    def test_delete_skill(self):
-        """Test deleting a skill successful"""
+    def test_delete_job(self):
+        """Test deleting a job successful"""
         job = create_job(user=self.user)
 
         url = detail_url(job.id)
@@ -162,6 +169,7 @@ class PrivateJobApiTest(TestCase):
 
 
 class JobFilterTestCase(TestCase):
+    """Tests for jobs filtering"""
     def setUp(self):
         self.client = APIClient()
         self.user = create_user(email='test@example.com', password='pass123')
@@ -172,6 +180,7 @@ class JobFilterTestCase(TestCase):
         # self.location3 = Location.objects.create(city='Seattle')
 
     def test_job_filtering_by_title(self):
+        """Test for filtering job by title"""
         create_job(user=self.user)
         payload = {
             'title': 'Sample title'
@@ -183,6 +192,7 @@ class JobFilterTestCase(TestCase):
         self.assertEqual(res.data[0]['title'], 'Sample title')
 
     def test_job_filtering_by_location(self):
+        """Test for filtering job by the location"""
         location = Location.objects.create(city="San Fransisco")
         location_id = str(location.id)
         create_job(user=self.user, location=location)

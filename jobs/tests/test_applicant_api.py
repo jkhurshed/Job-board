@@ -1,3 +1,6 @@
+"""
+Tests for the CRUD applicant operations
+"""
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -14,11 +17,12 @@ APPLICANT_URL = reverse("jobs:applicant-list")
 
 
 def detail_url(applicant_id):
-    """Create and return a recipe detail URL."""
+    """Create and return a applicant detail URL."""
     return reverse('jobs:applicant-detail', args=[applicant_id])
 
 
 def create_applicant(user, **params):
+    """Creating default values for the applicant entity"""
     skill = Skill.objects.create(proficiency_level='junior')
     defaults = {
         "name": "Sample Name",
@@ -32,11 +36,13 @@ def create_applicant(user, **params):
 
 
 def create_user(**params):
+    """Creating user"""
     """Create and return a new user."""
     return get_user_model().objects.create_user(**params)
 
 
 class PublicApplicantAPITests(TestCase):
+    """Test for unauthorized users"""
     def setUp(self):
         self.client = APIClient()
 
@@ -46,12 +52,14 @@ class PublicApplicantAPITests(TestCase):
 
 
 class PrivateApplicantApiTest(TestCase):
+    """Tests for authorized users api requests"""
     def setUp(self):
         self.client = APIClient()
         self.user = create_user(email='test@example.com', password='pass123')
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_applicant(self):
+        """Test for retrieving applicant APIs"""
         create_applicant(user=self.user)
 
         res = self.client.get(APPLICANT_URL)
@@ -63,6 +71,7 @@ class PrivateApplicantApiTest(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_get_applicant_detail(self):
+        """Test for getting applicant detail"""
         applicant = create_applicant(user=self.user)
 
         url = detail_url(applicant.id)
@@ -91,6 +100,7 @@ class PrivateApplicantApiTest(TestCase):
         self.assertEqual(applicant.skill.proficiency_level, self.skill.proficiency_level)
 
     def test_partial_update(self):
+        """Test for partial updating applicant"""
         self.skill = Skill.objects.create(proficiency_level="junior")
 
         applicant = create_applicant(user=self.user)
@@ -121,8 +131,8 @@ class PrivateApplicantApiTest(TestCase):
         applicant.refresh_from_db()
         self.assertEqual(applicant.user, self.user)
 
-    def test_delete_skill(self):
-        """Test deleting a skill successful"""
+    def test_delete_applicant(self):
+        """Test deleting an applicant successful"""
         applicant = create_applicant(user=self.user)
 
         url = detail_url(applicant.id)
