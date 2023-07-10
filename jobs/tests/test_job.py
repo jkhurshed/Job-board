@@ -40,6 +40,7 @@ class JobTest(TestCase):
         )
 
     def test_job_create(self):
+        """Creating job"""
         job = Job.objects.create(
             user=self.user,
             title='Sample title',
