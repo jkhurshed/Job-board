@@ -1,0 +1,1 @@
+[{"model": "contents.skill", "pk": "01863ff0-b375-419f-821c-54ed9925e1fc", "fields": {"title": "Hard Skill", "description": "Programming", "proficiency_level": "junior"}}, {"model": "contents.skill", "pk": "95219a68-2aa3-47e6-87aa-b58d1456bdbf", "fields": {"title": "Senior developer", "description": "", "proficiency_level": "senior"}}]

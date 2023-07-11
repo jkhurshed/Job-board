@@ -1,0 +1,1 @@
+[{"model": "jobs.applicant", "pk": 1, "fields": {"name": "James", "skill": "01863ff0-b375-419f-821c-54ed9925e1fc", "user": 1}}, {"model": "jobs.applicant", "pk": 2, "fields": {"name": "Eric", "skill": "95219a68-2aa3-47e6-87aa-b58d1456bdbf", "user": 1}}]

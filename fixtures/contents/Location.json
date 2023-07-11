@@ -1,0 +1,1 @@
+[{"model": "contents.location", "pk": "039b82cf-19fc-4112-9299-4194d885c4ac", "fields": {"country": "USA", "state": "California", "city": "San Fransisco", "address": "Mountain View"}}, {"model": "contents.location", "pk": "93429fc0-053c-4ece-bb39-a2e457cfb99d", "fields": {"country": "USA", "state": "Arizona", "city": "Arizona", "address": "River side"}}]
