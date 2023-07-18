@@ -1,7 +1,6 @@
 """
 Testing location entity
 """
-import os
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -19,23 +18,12 @@ class CompanyTest(TestCase):
             content_type="image/jpeg"
         )
 
-    def tearDown(self):
-        """Method for deleting images while testing them"""
-        for objects in Company.objects.all():
-            if objects.logo:
-                path = os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    '../../static/images',
-                    os.path.basename(objects.logo.path)
-                )
-                os.remove(path)
-
     def test_create_company(self):
         """Creating a Company successful"""
         company_location = Location.objects.create(
             address="TestCity st. test1",
         )
-        company = Company.objects.create(
+        self.company = Company.objects.create(
             title="Sample title",
             description="Sample description",
             website="https://example.com",
@@ -43,4 +31,7 @@ class CompanyTest(TestCase):
             location=company_location,
         )
 
-        self.assertEqual(str(company), company.title)
+        self.assertEqual(str(self.company), self.company.title)
+
+    def tearDown(self):
+        self.company.logo.delete()

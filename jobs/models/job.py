@@ -1,12 +1,8 @@
 from django.db import models
 from django.conf import settings
 
-from uuid import uuid4
-
 from common.models import BaseModel
-
 from contents.models import Location
-
 from employers.models import Company
 
 

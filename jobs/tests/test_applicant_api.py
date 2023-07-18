@@ -36,7 +36,6 @@ def create_applicant(user, **params):
 
 
 def create_user(**params):
-    """Creating user"""
     """Create and return a new user."""
     return get_user_model().objects.create_user(**params)
 
@@ -60,6 +59,7 @@ class PrivateApplicantApiTest(TestCase):
 
     def test_retrieve_applicant(self):
         """Test for retrieving applicant APIs"""
+        create_applicant(user=self.user)
         create_applicant(user=self.user)
 
         res = self.client.get(APPLICANT_URL)
@@ -120,7 +120,7 @@ class PrivateApplicantApiTest(TestCase):
         self.assertEqual(applicant.user, self.user)
         self.assertEqual(applicant.skill.proficiency_level, self.skill.proficiency_level)
 
-    def test_update_user_returns_error(self):
+    def test_update_when_no_applicant_fails(self):
         new_user = create_user(email="user2@example.com", password='test123')
         applicant = create_applicant(user=self.user)
 

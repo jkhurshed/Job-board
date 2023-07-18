@@ -12,8 +12,6 @@ db.sqlite3
 # Ignore IDE and editor files
 .vscode/
 *.idea/
-*.pyc
-*.pyo
 *.swp
 
 # Ignore environment-specific settings
@@ -21,3 +19,7 @@ db.sqlite3
 
 # Ignore local development settings
 local_settings.py
+
+# Ignore code coverage reports
+*.coverage
+htmlcov

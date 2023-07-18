@@ -37,7 +37,7 @@ THIRD_PARTY_APPS = [
     'debug_toolbar',
     'django_filters',
 ]
-    
+
 CUSTOM_APPS = [
     'common',
     'contents',

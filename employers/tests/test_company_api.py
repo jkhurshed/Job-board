@@ -17,10 +17,6 @@ from ..serializers import CompanySerializer
 COMPANY_URL = reverse("employers:company-list")
 
 
-def image_upload_url(company_id):
-    return reverse("employers:company-upload-image", args=[company_id])
-
-
 def detail_url(company_id):
     """Create and return a recipe detail URL."""
     return reverse('employers:company-detail', args=[company_id])
